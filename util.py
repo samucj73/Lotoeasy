@@ -1,20 +1,18 @@
 from fpdf import FPDF
 
 def exportar_txt(cartoes):
-    caminho = "/mnt/data/cartoes_lotofacil.txt"
-    with open(caminho, "w") as f:
+    nome_arquivo = "cartoes_lotofacil.txt"
+    with open(nome_arquivo, "w") as f:
         for i, c in enumerate(cartoes, 1):
-            linha = f"Cartão {i}: {' - '.join(f'{d:02}' for d in c)}\n"
-            f.write(linha)
-    return caminho
+            f.write(f"Cartão {i}: {' - '.join(f'{n:02}' for n in c)}\n")
+    return nome_arquivo
 
 def exportar_pdf(cartoes):
-    caminho = "/mnt/data/cartoes_lotofacil.pdf"
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     for i, c in enumerate(cartoes, 1):
-        linha = f"Cartão {i}: {' - '.join(f'{d:02}' for d in c)}"
-        pdf.cell(200, 10, txt=linha, ln=True)
-    pdf.output(caminho)
-    return caminho
+        pdf.cell(200, 10, txt=f"Cartão {i}: {' - '.join(f'{n:02}' for n in c)}", ln=True)
+    nome_arquivo = "cartoes_lotofacil.pdf"
+    pdf.output(nome_arquivo)
+    return nome_arquivo
