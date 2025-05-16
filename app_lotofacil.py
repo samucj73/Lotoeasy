@@ -1,4 +1,3 @@
-
 import streamlit as st
 from lotofacil_estatisticas import (
     dezenas_mais_sorteadas,
@@ -8,6 +7,15 @@ from lotofacil_estatisticas import (
     colunas_mais_frequentes,
     faixas_mais_frequentes,
     ultimos_resultados
+)
+from estatisticas_adicionais import (
+    pares_impares,
+    soma_das_dezenas,
+    quadrantes,
+    sequencias_comuns,
+    duplas_mais_comuns,
+    repeticoes_com_concursos,
+    dezenas_atrasadas
 )
 from util import exportar_txt, exportar_pdf
 from gerador_lotofacil import gerar_cartoes_personalizados
@@ -46,8 +54,13 @@ elif st.button("🔁 Gerar Cartões"):
 # Estatísticas organizadas em abas
 st.markdown("---")
 st.subheader("📊 Análise Estatística")
+abas = st.tabs([
+    "Mais / Menos Sorteadas", "Trincas e Faixas", "Linhas / Colunas",
+    "Pares e Ímpares", "Somas", "Quadrantes", "Sequências e Duplas",
+    "Repetições", "Dezenas Atrasadas", "Últimos Resultados"
+])
 
-abas = st.tabs(["Mais / Menos Sorteadas", "Trincas e Faixas", "Linhas / Colunas", "Últimos Resultados"])
+ultimos = [dezenas for _, dezenas in ultimos_resultados()]
 
 with abas[0]:
     col1, col2 = st.columns(2)
@@ -64,7 +77,6 @@ with abas[1]:
     st.markdown("**Trincas Mais Frequentes:**")
     for trio, freq in trincas_mais_frequentes():
         st.write(f"{trio}: {freq}x")
-
     st.markdown("**Faixas Mais Frequentes:**")
     for faixa, freq in faixas_mais_frequentes():
         st.write(f"{faixa}: {freq}x")
@@ -81,7 +93,40 @@ with abas[2]:
             st.write(f"{col}: {freq}x")
 
 with abas[3]:
-    st.markdown("🗓 **Últimos 10 Resultados da LotoFácil**")
+    st.markdown("**Distribuição Pares e Ímpares:**")
+    for (pares, impares), freq in pares_impares(ultimos):
+        st.write(f"{pares} pares / {impares} ímpares: {freq}x")
+
+with abas[4]:
+    st.markdown("**Faixas de Soma das Dezenas:**")
+    for faixa, freq in soma_das_dezenas(ultimos):
+        st.write(f"Soma ~{faixa}-{faixa+9}: {freq}x")
+
+with abas[5]:
+    st.markdown("**Aparições por Quadrante:**")
+    for q, freq in quadrantes(ultimos):
+        st.write(f"Quadrante {q}: {freq}x")
+
+with abas[6]:
+    st.markdown("**Sequências Mais Comuns (3+ dezenas):**")
+    for seq, freq in sequencias_comuns(ultimos):
+        st.write(f"{seq}: {freq}x")
+    st.markdown("**Duplas Mais Frequentes:**")
+    for dupla, freq in duplas_mais_comuns(ultimos):
+        st.write(f"{dupla}: {freq}x")
+
+with abas[7]:
+    st.markdown("**Repetição de Dezenas entre Concursos:**")
+    for repetidas, freq in repeticoes_com_concursos(ultimos):
+        st.write(f"{repetidas} repetidas: {freq}x")
+
+with abas[8]:
+    st.markdown("**Dezenas Ausentes nos Últimos 10 Concursos:**")
+    atrasadas = dezenas_atrasadas(ultimos)
+    st.write(", ".join(f"{d:02}" for d in atrasadas) if atrasadas else "Nenhuma dezena atrasada")
+
+with abas[9]:
+    st.markdown("**Últimos 10 Resultados da LotoFácil:**")
     for concurso, dezenas in ultimos_resultados():
         st.markdown(f"**Concurso {concurso}:** {' - '.join(f'{n:02}' for n in dezenas)}")
 
