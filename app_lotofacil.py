@@ -15,63 +15,55 @@ from estatisticas_adicionais import (
     sequencias_comuns,
     duplas_mais_comuns,
     repeticoes_com_concursos,
-    dezenas_atrasadas
+    dezenas_atrasadas,
+    quantidade_primos
 )
 from util import exportar_txt, exportar_pdf
 from gerador_lotofacil import gerar_cartoes_personalizados
+from gerador_inteligente import gerar_cartoes_inteligentes
 
 st.set_page_config(page_title="LotoFácil Inteligente", layout="wide")
-
 st.markdown("<h1 style='text-align: center;'>🍀 LotoFácil Inteligente</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center;'>Gere cartões com base em estatísticas reais e personalização</p>", unsafe_allow_html=True)
 
-# Geração
 st.markdown("### 🎯 Geração de Cartões")
 qtd_cartoes = st.slider("Quantos cartões deseja gerar?", 1, 100, 1)
-
 fixas = st.multiselect("Escolha até 7 dezenas fixas:", list(range(1, 26)))
 excluir = st.multiselect("Deseja excluir até 5 dezenas?", [i for i in range(1, 26) if i not in fixas])
+modo_inteligente = st.checkbox("Usar geração inteligente com base nas estatísticas")
 
 if len(fixas) > 7:
     st.warning("Máximo de 7 dezenas fixas permitidas.")
 elif len(excluir) > 5:
     st.warning("Máximo de 5 dezenas para excluir.")
 elif st.button("🔁 Gerar Cartões"):
-    cartoes = gerar_cartoes_personalizados(fixas, excluir, qtd_cartoes)
-    cartoes_unicos = []
-    vistos = set()
-    for c in cartoes:
-        chave = tuple(sorted(c))
-        if chave not in vistos:
-            cartoes_unicos.append(c)
-            vistos.add(chave)
-        if len(cartoes_unicos) >= qtd_cartoes:
-            break
-    for i, cartao in enumerate(cartoes_unicos, 1):
+    if modo_inteligente:
+        mais_frequentes = [d[0] for d in dezenas_mais_sorteadas()]
+        atrasadas = dezenas_atrasadas([r[1] for r in ultimos_resultados()])
+        cartoes = gerar_cartoes_inteligentes(qtd_cartoes, fixas, excluir, mais_frequentes, atrasadas)
+    else:
+        cartoes = gerar_cartoes_personalizados(fixas, excluir, qtd_cartoes)
+    for i, cartao in enumerate(cartoes, 1):
         st.success(f"Cartão {i}: {' - '.join(f'{n:02}' for n in sorted(cartao))}")
-    st.session_state['cartoes'] = cartoes_unicos
+    st.session_state['cartoes'] = cartoes
 
-# Estatísticas organizadas em abas
 st.markdown("---")
-st.subheader("📊 Análise Estatística")
+st.subheader("📊 Estatísticas")
+
+ultimos = [r[1] for r in ultimos_resultados()]
 abas = st.tabs([
     "Mais / Menos Sorteadas", "Trincas e Faixas", "Linhas / Colunas",
     "Pares e Ímpares", "Somas", "Quadrantes", "Sequências e Duplas",
-    "Repetições", "Dezenas Atrasadas", "Últimos Resultados"
+    "Repetições", "Dezenas Atrasadas", "Números Primos", "Últimos Resultados"
 ])
 
-ultimos = [dezenas for _, dezenas in ultimos_resultados()]
-
 with abas[0]:
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("**Mais Sorteadas:**")
-        for dez, freq in dezenas_mais_sorteadas():
-            st.write(f"{dez:02}: {freq}x")
-    with col2:
-        st.markdown("**Menos Sorteadas:**")
-        for dez, freq in dezenas_menos_sorteadas():
-            st.write(f"{dez:02}: {freq}x")
+    st.markdown("**Mais Sorteadas:**")
+    for dez, freq in dezenas_mais_sorteadas():
+        st.write(f"{dez:02}: {freq}x")
+    st.markdown("**Menos Sorteadas:**")
+    for dez, freq in dezenas_menos_sorteadas():
+        st.write(f"{dez:02}: {freq}x")
 
 with abas[1]:
     st.markdown("**Trincas Mais Frequentes:**")
@@ -82,51 +74,47 @@ with abas[1]:
         st.write(f"{faixa}: {freq}x")
 
 with abas[2]:
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("**Linhas Mais Frequentes:**")
-        for linha, freq in linhas_mais_frequentes():
-            st.write(f"{linha}: {freq}x")
-    with col2:
-        st.markdown("**Colunas Mais Frequentes:**")
-        for col, freq in colunas_mais_frequentes():
-            st.write(f"{col}: {freq}x")
+    st.markdown("**Linhas Mais Frequentes:**")
+    for linha, freq in linhas_mais_frequentes():
+        st.write(f"{linha}: {freq}x")
+    st.markdown("**Colunas Mais Frequentes:**")
+    for col, freq in colunas_mais_frequentes():
+        st.write(f"{col}: {freq}x")
 
 with abas[3]:
-    st.markdown("**Distribuição Pares e Ímpares:**")
-    for (pares, impares), freq in pares_impares(ultimos):
-        st.write(f"{pares} pares / {impares} ímpares: {freq}x")
+    for (p, i), freq in pares_impares(ultimos):
+        st.write(f"{p} pares / {i} ímpares: {freq}x")
 
 with abas[4]:
-    st.markdown("**Faixas de Soma das Dezenas:**")
     for faixa, freq in soma_das_dezenas(ultimos):
-        st.write(f"Soma ~{faixa}-{faixa+9}: {freq}x")
+        st.write(f"Soma na faixa {faixa}-{faixa+9}: {freq}x")
 
 with abas[5]:
-    st.markdown("**Aparições por Quadrante:**")
-    for q, freq in quadrantes(ultimos):
-        st.write(f"Quadrante {q}: {freq}x")
+    for quad, freq in quadrantes(ultimos):
+        st.write(f"Quadrante {quad}: {freq} dezenas")
 
 with abas[6]:
-    st.markdown("**Sequências Mais Comuns (3+ dezenas):**")
+    st.markdown("**Sequências Comuns:**")
     for seq, freq in sequencias_comuns(ultimos):
         st.write(f"{seq}: {freq}x")
-    st.markdown("**Duplas Mais Frequentes:**")
+    st.markdown("**Duplas Comuns:**")
     for dupla, freq in duplas_mais_comuns(ultimos):
         st.write(f"{dupla}: {freq}x")
 
 with abas[7]:
-    st.markdown("**Repetição de Dezenas entre Concursos:**")
-    for repetidas, freq in repeticoes_com_concursos(ultimos):
-        st.write(f"{repetidas} repetidas: {freq}x")
+    for rep, freq in repeticoes_com_concursos(ultimos):
+        st.write(f"{rep} dezenas repetidas: {freq}x")
 
 with abas[8]:
-    st.markdown("**Dezenas Ausentes nos Últimos 10 Concursos:**")
-    atrasadas = dezenas_atrasadas(ultimos)
-    st.write(", ".join(f"{d:02}" for d in atrasadas) if atrasadas else "Nenhuma dezena atrasada")
+    st.write("Dezenas que não saíram nos últimos concursos:")
+    atras = dezenas_atrasadas(ultimos)
+    st.write(", ".join(f"{d:02}" for d in atras))
 
 with abas[9]:
-    st.markdown("**Últimos 10 Resultados da LotoFácil:**")
+    for qtd, freq in quantidade_primos(ultimos):
+        st.write(f"{qtd} primos: {freq}x")
+
+with abas[10]:
     for concurso, dezenas in ultimos_resultados():
         st.markdown(f"**Concurso {concurso}:** {' - '.join(f'{n:02}' for n in dezenas)}")
 
@@ -146,6 +134,5 @@ if st.session_state.get('cartoes'):
 else:
     st.info("Gere cartões antes de exportar.")
 
-# Rodapé
 st.markdown("---")
-st.markdown("<p style='text-align: center; font-size: 14px;'>Desenvolvido por <strong>SAMUCJ TECHNOLOGY</strong> 💡</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Desenvolvido por <strong>SAMUCJ TECHNOLOGY</strong> 💡</p>", unsafe_allow_html=True)
