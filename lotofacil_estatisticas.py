@@ -14,16 +14,16 @@ def dezenas_mais_sorteadas(qtd=10):
 def dezenas_menos_sorteadas(qtd=10):
     todas = [d for _, _, l in ultimos_resultados(qtd) for d in l]
     cont = Counter(todas)
-    return cont.most_common()[-10:]
+    return cont.most_common()[-25:]
 
-def trincas_mais_frequentes(qtd=10):
+def trincas_mais_frequentes(qtd=25):
     todas_trincas = []
     for _, _, dezenas in ultimos_resultados(qtd):
         todas_trincas.extend(itertools.combinations(sorted(dezenas), 3))
     cont = Counter(todas_trincas)
     return cont.most_common(5)
 
-def linhas_mais_frequentes(qtd=10):
+def linhas_mais_frequentes(qtd=25):
     linhas = {1: range(1,6), 2: range(6,11), 3: range(11,16), 4: range(16,21), 5: range(21,26)}
     freq = Counter()
     for _, _, dezenas in ultimos_resultados(qtd):
@@ -32,7 +32,7 @@ def linhas_mais_frequentes(qtd=10):
                 freq[l] += 1
     return freq.most_common()
 
-def colunas_mais_frequentes(qtd=10):
+def colunas_mais_frequentes(qtd=25):
     colunas = {1: [1,6,11,16,21], 2: [2,7,12,17,22], 3: [3,8,13,18,23], 4: [4,9,14,19,24], 5: [5,10,15,20,25]}
     freq = Counter()
     for _, _, dezenas in ultimos_resultados(qtd):
@@ -41,7 +41,7 @@ def colunas_mais_frequentes(qtd=10):
                 freq[c] += 1
     return freq.most_common()
 
-def faixas_mais_frequentes(qtd=10):
+def faixas_mais_frequentes(qtd=25):
     faixas = {1: range(1,6), 2: range(6,11), 3: range(11,16), 4: range(16,21), 5: range(21,26)}
     freq = Counter()
     for _, _, dezenas in ultimos_resultados(qtd):
