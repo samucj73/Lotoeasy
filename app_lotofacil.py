@@ -1,4 +1,3 @@
-
 import streamlit as st
 from lotofacil_estatisticas import (
     dezenas_mais_sorteadas,
@@ -18,6 +17,15 @@ from estatisticas_adicionais import (
     repeticoes_com_concursos,
     dezenas_atrasadas,
     quantidade_primos
+)
+from analise_avancada import (
+    analise_gaps,
+    soma_extremos,
+    media_das_dezenas,
+    digitos_finais,
+    digitos_iniciais,
+    dezenas_menos_correlacionadas,
+    distancia_entre_aparicoes
 )
 from util import exportar_txt, exportar_pdf
 from gerador_lotofacil import gerar_cartoes_personalizados
@@ -60,7 +68,8 @@ jogos = [(c, d, l) for c, d, l in ultimos]
 abas = st.tabs([
     "Mais / Menos Sorteadas", "Trincas e Faixas", "Linhas / Colunas",
     "Pares e Ímpares", "Somas", "Quadrantes", "Sequências e Duplas",
-    "Repetições", "Dezenas Atrasadas", "Números Primos", "Últimos Resultados"
+    "Repetições", "Dezenas Atrasadas", "Números Primos",
+    "Últimos Resultados", "Análises Avançadas"
 ])
 
 with abas[0]:
@@ -124,7 +133,38 @@ with abas[10]:
     for concurso, _, dezenas in jogos:
         st.markdown(f"**Concurso {concurso}:** {' - '.join(f'{n:02}' for n in dezenas)}")
 
-# Exportação
+with abas[11]:
+    st.markdown("### 🔍 Análises Avançadas dos Jogos")
+
+    st.subheader("📏 Gaps entre Dezenas")
+    for gap, freq in analise_gaps(jogos):
+        st.write(f"Gap {gap}: {freq} ocorrência(s)")
+
+    st.subheader("📐 Soma dos Extremos")
+    for soma, freq in soma_extremos(jogos)[:10]:
+        st.write(f"Soma {soma}: {freq} ocorrência(s)")
+
+    st.subheader("📊 Média das Dezenas")
+    for media, freq in media_das_dezenas(jogos)[:10]:
+        st.write(f"Média {media}: {freq} ocorrência(s)")
+
+    st.subheader("🔢 Dígitos Finais das Dezenas")
+    finais = dict(digitos_finais(jogos))
+    st.bar_chart(finais)
+
+    st.subheader("🔠 Dígitos Iniciais das Dezenas")
+    iniciais = dict(digitos_iniciais(jogos))
+    st.bar_chart(iniciais)
+
+    st.subheader("🚫 Dezenas Menos Correlacionadas")
+    for dupla, perc in dezenas_menos_correlacionadas(jogos):
+        st.write(f"{dupla}: {perc:.2%} de coocorrência")
+
+    st.subheader("📅 Distância Entre Aparições")
+    dists = distancia_entre_aparicoes(jogos)
+    for dez, valores in dists.items():
+        st.write(f"Dezena {dez:02}: {valores}")
+
 st.markdown("---")
 st.subheader("📤 Exportar Cartões")
 if st.session_state.get('cartoes'):
