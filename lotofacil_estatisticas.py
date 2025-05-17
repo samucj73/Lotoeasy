@@ -2,7 +2,7 @@ from collections import Counter
 import itertools
 from api_lotofacil import capturar_ultimos_resultados
 
-def ultimos_resultados(qtd=10):
+def ultimos_resultados(qtd=25):
     # Pega os últimos resultados via API (default 10 últimos)
     return capturar_ultimos_resultados(qtd)
 
