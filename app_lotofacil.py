@@ -30,6 +30,8 @@ from analise_avancada import (
 from util import exportar_txt, exportar_pdf
 from gerador_lotofacil import gerar_cartoes_personalizados
 from gerador_inteligente import gerar_cartoes_inteligentes
+import io
+from fpdf import FPDF
 
 st.set_page_config(page_title="LotoFácil Inteligente", layout="wide")
 st.markdown("<h1 style='text-align: center;'>🍀 LotoFácil Inteligente</h1>", unsafe_allow_html=True)
@@ -188,19 +190,78 @@ with abas[12]:
             st.write(f"🟢 Cartões com {pontos} pontos: {faixas[pontos]}")
 
 st.markdown("---")
+
+# === Nova seção Exportação com download_button ===
+
+def gerar_txt(cartoes):
+    linhas = [f"Cartão {i}: {' - '.join(f'{n:02}' for n in sorted(c))}" for i, c in enumerate(cartoes, 1)]
+    return "\n".join(linhas)
+
+def gerar_pdf_bytes(cartoes):
+    pdf_buffer = io.BytesIO()
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    for i, c in enumerate(cartoes, 1):
+        pdf.cell(0, 10, txt=f"Cartão {i}: {' - '.join(f'{n:02}' for n in sorted(c))}", ln=True)
+    pdf.output(pdf_buffer)
+    pdf_buffer.seek(0)
+    return pdf_buffer
+
 st.subheader("📤 Exportar Cartões")
+
 if st.session_state.get('cartoes'):
+    cartoes = st.session_state['cartoes']
+
+    txt_conteudo = gerar_txt(cartoes)
+    pdf_buffer = gerar_pdf_bytes(cartoes)
+
     col1, col2 = st.columns(2)
+
     with col1:
-        if st.button("⬇️ Exportar .TXT"):
-            caminho = exportar_txt(st.session_state['cartoes'])
-            st.success(f"Salvo em {caminho}")
+        st.markdown("""
+            <style>
+            div.stDownloadButton > button:first-child {
+                background-color: #4CAF50;
+                color: white;
+                font-size: 16px;
+                padding: 10px 24px;
+                border-radius: 8px;
+            }
+            div.stDownloadButton > button:first-child:hover {
+                background-color: #45a049;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+        st.download_button(
+            label="⬇️ Baixar Cartões (.TXT)",
+            data=txt_conteudo,
+            file_name="cartoes_lotofacil.txt",
+            mime="text/plain",
+        )
     with col2:
-        if st.button("⬇️ Exportar .PDF"):
-            caminho = exportar_pdf(st.session_state['cartoes'])
-            st.success(f"Salvo em {caminho}")
+        st.markdown("""
+            <style>
+            div.stDownloadButton > button:first-child {
+                background-color: #2196F3;
+                color: white;
+                font-size: 16px;
+                padding: 10px 24px;
+                border-radius: 8px;
+            }
+            div.stDownloadButton > button:first-child:hover {
+                background-color: #0b7dda;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+        st.download_button(
+            label="⬇️ Baixar Cartões (.PDF)",
+            data=pdf_buffer,
+            file_name="cartoes_lotofacil.pdf",
+            mime="application/pdf",
+        )
 else:
-    st.info("Gere cartões antes de exportar.")
+    st.info("Gere os cartões acima para habilitar a exportação.")
 
 st.markdown("---")
 st.markdown("<p style='text-align: center;'>Desenvolvido por <strong>SAMUCJ TECHNOLOGY</strong> 💡</p>", unsafe_allow_html=True)
