@@ -1,5 +1,21 @@
 from collections import Counter
 
+def validar_formato_jogos(jogos):
+    if not isinstance(jogos, list):
+        raise ValueError("Esperado uma lista de jogos.")
+    for idx, item in enumerate(jogos):
+        if not (isinstance(item, tuple) or isinstance(item, list)):
+            raise ValueError(f"Item {idx} não é uma tupla/lista: {item}")
+        if len(item) != 3:
+            raise ValueError(f"Item {idx} não tem 3 elementos: {item}")
+        _, _, dezenas = item
+        if not (isinstance(dezenas, list) or isinstance(dezenas, tuple)):
+            raise ValueError(f"Item {idx} o terceiro elemento não é lista/tupla: {dezenas}")
+        for d in dezenas:
+            if not isinstance(d, int):
+                raise ValueError(f"Item {idx} dezenas contém valor não inteiro: {d}")
+    print("Formato validado com sucesso!")
+
 def pares_impares(jogos):
     resultado = Counter()
     for _, _, dezenas in jogos:
@@ -32,7 +48,6 @@ def quadrantes(jogos):
     return resultado.items()
 
 def sequencias_comuns(jogos):
-    from collections import Counter
     contador = Counter()
     for _, _, dezenas in jogos:
         seq = []
@@ -48,7 +63,6 @@ def sequencias_comuns(jogos):
     return contador.most_common(5)
 
 def duplas_mais_comuns(jogos):
-    from collections import Counter
     contador = Counter()
     for _, _, dezenas in jogos:
         for i in range(len(dezenas)):
@@ -58,7 +72,6 @@ def duplas_mais_comuns(jogos):
     return contador.most_common(5)
 
 def repeticoes_com_concursos(jogos):
-    from collections import Counter
     contador = Counter()
     for i in range(1, len(jogos)):
         anterior = set(jogos[i-1][2])
