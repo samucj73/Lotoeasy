@@ -28,7 +28,7 @@ def soma_das_dezenas(jogos):
     faixas = Counter()
     for _, _, dezenas in jogos:
         soma = sum(dezenas)
-        faixa = (soma // 10) * 10
+        faixa = (soma // 25) * 25
         faixas[faixa] += 1
     return faixas.items()
 
