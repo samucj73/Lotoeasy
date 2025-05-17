@@ -69,7 +69,7 @@ abas = st.tabs([
     "Mais / Menos Sorteadas", "Trincas e Faixas", "Linhas / Colunas",
     "Pares e Ímpares", "Somas", "Quadrantes", "Sequências e Duplas",
     "Repetições", "Dezenas Atrasadas", "Números Primos",
-    "Últimos Resultados", "Análises Avançadas"
+    "Últimos Resultados", "Análises Avançadas", "Conferência de Cartões"
 ])
 
 with abas[0]:
@@ -164,6 +164,28 @@ with abas[11]:
     dists = distancia_entre_aparicoes(jogos)
     for dez, valores in dists.items():
         st.write(f"Dezena {dez:02}: {valores}")
+
+with abas[12]:
+    st.markdown("### 📋 Conferência dos Cartões Gerados com os Últimos 25 Resultados")
+
+    if 'cartoes' not in st.session_state:
+        st.info("Gere os cartões primeiro para realizar a conferência.")
+    else:
+        cartoes = st.session_state['cartoes']
+        ultimos = list(ultimos_resultados())
+        resultados = [set(dezenas) for _, _, dezenas in ultimos]
+
+        faixas = {15: 0, 14: 0, 13: 0, 12: 0, 11: 0}
+
+        for cartao in cartoes:
+            for resultado in resultados:
+                acertos = len(set(cartao) & resultado)
+                if acertos in faixas:
+                    faixas[acertos] += 1
+
+        st.subheader("🎯 Resultados da Conferência")
+        for pontos in sorted(faixas.keys(), reverse=True):
+            st.write(f"🟢 Cartões com {pontos} pontos: {faixas[pontos]}")
 
 st.markdown("---")
 st.subheader("📤 Exportar Cartões")
