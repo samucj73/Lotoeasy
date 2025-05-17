@@ -2,16 +2,16 @@ from collections import Counter
 
 def pares_impares(jogos):
     resultado = Counter()
-    for jogo in jogos:
-        pares = sum(1 for d in jogo if d % 2 == 0)
+    for _, _, dezenas in jogos:
+        pares = sum(1 for d in dezenas if d % 2 == 0)
         impares = 15 - pares
         resultado[(pares, impares)] += 1
     return resultado.items()
 
 def soma_das_dezenas(jogos):
     faixas = Counter()
-    for jogo in jogos:
-        soma = sum(jogo)
+    for _, _, dezenas in jogos:
+        soma = sum(dezenas)
         faixa = (soma // 10) * 10
         faixas[faixa] += 1
     return faixas.items()
@@ -25,54 +25,57 @@ def quadrantes(jogos):
         5: set(range(21, 26))
     }
     resultado = Counter()
-    for jogo in jogos:
+    for _, _, dezenas in jogos:
         for q, nums in quadrante_map.items():
-            count = len(set(jogo) & nums)
+            count = len(set(dezenas) & nums)
             resultado[q] += count
     return resultado.items()
 
 def sequencias_comuns(jogos):
+    from collections import Counter
     contador = Counter()
-    for jogo in jogos:
+    for _, _, dezenas in jogos:
         seq = []
-        for i in range(len(jogo)):
-            if i == 0 or jogo[i] == jogo[i-1] + 1:
-                seq.append(jogo[i])
+        for i in range(len(dezenas)):
+            if i == 0 or dezenas[i] == dezenas[i-1] + 1:
+                seq.append(dezenas[i])
             else:
                 if len(seq) >= 3:
                     contador[tuple(seq)] += 1
-                seq = [jogo[i]]
+                seq = [dezenas[i]]
         if len(seq) >= 3:
             contador[tuple(seq)] += 1
     return contador.most_common(5)
 
 def duplas_mais_comuns(jogos):
+    from collections import Counter
     contador = Counter()
-    for jogo in jogos:
-        for i in range(len(jogo)):
-            for j in range(i+1, len(jogo)):
-                dupla = tuple(sorted((jogo[i], jogo[j])))
+    for _, _, dezenas in jogos:
+        for i in range(len(dezenas)):
+            for j in range(i+1, len(dezenas)):
+                dupla = tuple(sorted((dezenas[i], dezenas[j])))
                 contador[dupla] += 1
     return contador.most_common(5)
 
 def repeticoes_com_concursos(jogos):
+    from collections import Counter
     contador = Counter()
     for i in range(1, len(jogos)):
-        anterior = set(jogos[i-1])
-        atual = set(jogos[i])
+        anterior = set(jogos[i-1][2])
+        atual = set(jogos[i][2])
         repetidas = len(anterior & atual)
         contador[repetidas] += 1
     return sorted(contador.items())
 
 def dezenas_atrasadas(jogos):
     todas = set(range(1, 26))
-    recentes = set(num for jogo in jogos for num in jogo)
+    recentes = set(num for _, _, dezenas in jogos for num in dezenas)
     return sorted(todas - recentes)
 
 def quantidade_primos(jogos):
     primos = {2, 3, 5, 7, 11, 13, 17, 19, 23}
     contador = Counter()
-    for jogo in jogos:
-        qtd = sum(1 for d in jogo if d in primos)
+    for _, _, dezenas in jogos:
+        qtd = sum(1 for d in dezenas if d in primos)
         contador[qtd] += 1
     return sorted(contador.items(), key=lambda x: -x[1])
