@@ -1,6 +1,6 @@
 from collections import Counter
 import itertools
-from lotofacil_api import carregar_resultados # <- usa a nova API via CSV
+from api_lotofacil import carregar_resultados # <- usa a nova API via CSV
 
 def ultimos_resultados():
     return carregar_resultados_csv()
