@@ -37,12 +37,13 @@ if len(fixas) > 7:
 elif len(excluir) > 5:
     st.warning("Máximo de 5 dezenas para excluir.")
 elif st.button("🔁 Gerar Cartões"):
+    ultimos = [r[1] for r in ultimos_resultados()]
     if modo_inteligente:
         mais_frequentes = [d[0] for d in dezenas_mais_sorteadas()]
-        atrasadas = dezenas_atrasadas([r[1] for r in ultimos_resultados()])
+        atrasadas = dezenas_atrasadas(ultimos)
         cartoes = gerar_cartoes_inteligentes(qtd_cartoes, fixas, excluir, mais_frequentes, atrasadas)
     else:
-        cartoes = gerar_cartoes_personalizados(fixas, excluir, qtd_cartoes)
+        cartoes = gerar_cartoes_personalizados(fixas, excluir, qtd_cartoes, ultimos)
     for i, cartao in enumerate(cartoes, 1):
         st.success(f"Cartão {i}: {' - '.join(f'{n:02}' for n in sorted(cartao))}")
     st.session_state['cartoes'] = cartoes
