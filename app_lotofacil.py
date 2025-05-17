@@ -1,3 +1,4 @@
+
 import streamlit as st
 from lotofacil_estatisticas import (
     dezenas_mais_sorteadas,
@@ -51,7 +52,9 @@ elif st.button("🔁 Gerar Cartões"):
 st.markdown("---")
 st.subheader("📊 Estatísticas")
 
-ultimos = [r[1] for r in ultimos_resultados()]
+ultimos = ultimos_resultados()
+somente_dezenas = [r[1] if isinstance(r, tuple) and len(r) == 2 else r[2] for r in ultimos]
+
 abas = st.tabs([
     "Mais / Menos Sorteadas", "Trincas e Faixas", "Linhas / Colunas",
     "Pares e Ímpares", "Somas", "Quadrantes", "Sequências e Duplas",
@@ -116,7 +119,7 @@ with abas[9]:
         st.write(f"{qtd} primos: {freq}x")
 
 with abas[10]:
-    for concurso, dezenas in ultimos_resultados():
+    for concurso, dezenas in ultimos:
         st.markdown(f"**Concurso {concurso}:** {' - '.join(f'{n:02}' for n in dezenas)}")
 
 # Exportação
