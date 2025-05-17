@@ -191,22 +191,20 @@ with abas[12]:
 
 st.markdown("---")
 
-# === Nova seção Exportação com download_button ===
+# === Seção Exportação com download_button ===
 
 def gerar_txt(cartoes):
     linhas = [f"Cartão {i}: {' - '.join(f'{n:02}' for n in sorted(c))}" for i, c in enumerate(cartoes, 1)]
     return "\n".join(linhas)
 
 def gerar_pdf_bytes(cartoes):
-    pdf_buffer = io.BytesIO()
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     for i, c in enumerate(cartoes, 1):
         pdf.cell(0, 10, txt=f"Cartão {i}: {' - '.join(f'{n:02}' for n in sorted(c))}", ln=True)
-    pdf.output(pdf_buffer)
-    pdf_buffer.seek(0)
-    return pdf_buffer
+    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    return pdf_bytes
 
 st.subheader("📤 Exportar Cartões")
 
@@ -214,7 +212,7 @@ if st.session_state.get('cartoes'):
     cartoes = st.session_state['cartoes']
 
     txt_conteudo = gerar_txt(cartoes)
-    pdf_buffer = gerar_pdf_bytes(cartoes)
+    pdf_bytes = gerar_pdf_bytes(cartoes)
 
     col1, col2 = st.columns(2)
 
@@ -256,7 +254,7 @@ if st.session_state.get('cartoes'):
             """, unsafe_allow_html=True)
         st.download_button(
             label="⬇️ Baixar Cartões (.PDF)",
-            data=pdf_buffer,
+            data=pdf_bytes,
             file_name="cartoes_lotofacil.pdf",
             mime="application/pdf",
         )
