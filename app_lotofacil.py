@@ -167,6 +167,10 @@ with abas[11]:
     for dez, valores in dists.items():
         st.write(f"Dezena {dez:02}: {valores}")
 
+
+# ... (demais imports permanecem iguais)
+
+# Dentro da aba de conferência (abas[12]):
 with abas[12]:
     st.markdown("### 📋 Conferência dos Cartões Gerados com os Últimos 25 Resultados")
 
@@ -178,16 +182,34 @@ with abas[12]:
         resultados = [set(dezenas) for _, _, dezenas in ultimos]
 
         faixas = {15: 0, 14: 0, 13: 0, 12: 0, 11: 0}
+        detalhes_cartoes = []
 
-        for cartao in cartoes:
-            for resultado in resultados:
-                acertos = len(set(cartao) & resultado)
+        for i, cartao in enumerate(cartoes, 1):
+            melhor_acerto = 0
+            melhor_concurso = ""
+            for concurso, _, dezenas_sorteadas in ultimos:
+                acertos = len(set(cartao) & set(dezenas_sorteadas))
                 if acertos in faixas:
                     faixas[acertos] += 1
+                if acertos > melhor_acerto:
+                    melhor_acerto = acertos
+                    melhor_concurso = concurso
+            if melhor_acerto >= 12:
+                detalhes_cartoes.append((i, melhor_acerto, melhor_concurso, cartao))
 
         st.subheader("🎯 Resultados da Conferência")
         for pontos in sorted(faixas.keys(), reverse=True):
             st.write(f"🟢 Cartões com {pontos} pontos: {faixas[pontos]}")
+
+        st.subheader("📄 Cartões que acertaram (12+ pontos)")
+        for i, pontos, concurso, cartao in detalhes_cartoes:
+            st.markdown(
+                f"- Cartão **{i:02}** → **{pontos} pontos** no concurso **{concurso}** → "
+                + " ".join(f"{d:02}" for d in sorted(cartao))
+            )
+
+
+
 
 st.markdown("---")
 
