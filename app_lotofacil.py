@@ -194,7 +194,7 @@ with abas[12]:
                 if acertos > melhor_acerto:
                     melhor_acerto = acertos
                     melhor_concurso = concurso
-            if melhor_acerto >= 12:
+            if melhor_acerto >= 13:
                 detalhes_cartoes.append((i, melhor_acerto, melhor_concurso, cartao))
 
         st.subheader("🎯 Resultados da Conferência")
