@@ -62,7 +62,8 @@ def cartao_valido(cartao):
     )
     
 
-def gerar_cartoes_personalizados( fixas=None, excluir=None, mais_frequentes=None, atrasadas=None):
+def gerar_cartoes_personalizados( qtd_cartoes, fixas=None, excluir=None, mais_frequentes=None, atrasadas=None):
+    qtd_cartoes
     fixas = fixas or []
     excluir = excluir or []
     mais_frequentes = set(mais_frequentes or [])
