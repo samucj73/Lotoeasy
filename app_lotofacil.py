@@ -53,7 +53,7 @@ elif st.button("🔁 Gerar Cartões"):
     if modo_inteligente:
         mais_frequentes = [d[0] for d in dezenas_mais_sorteadas()]
         atrasadas = dezenas_atrasadas(jogos)
-        cartoes = gerar_cartoes_inteligentes(qtd_cartoes, fixas, excluir, mais_frequentes, atrasadas)
+        cartoes = gerar_cartoes_inteligentes(qtd, fixas, excluir, mais_frequentes, atrasadas)
     else:
         ult_dezenas = [l for _, _, l in ultimos]
         cartoes = gerar_cartoes_personalizados(qtd_cartoes, list(fixas or []), list(excluir or []))
