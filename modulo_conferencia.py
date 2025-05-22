@@ -7,14 +7,14 @@ def conferir_cartoes(cartoes, ultimos_resultados, filtrar_bons=False, min_acerto
     Parâmetros:
     - cartoes: lista de listas (cada cartão com 15 dezenas)
     - ultimos_resultados: lista de tuplas (concurso, data, dezenas sorteadas)
-    - filtrar_bons: se True, retorna apenas os cartões com bom desempenho
+    - filtrar_bons: se True, retorna também os cartões com bom desempenho
     - min_acertos_13_ou_mais: número mínimo de vezes que um cartão precisa ter feito 13+ acertos
 
     Retorna:
     - resultados: lista de tuplas (concurso, acertos_por_cartao)
     - faixa_acertos: contagem geral de acertos entre 11 e 15
     - desempenho_cartoes: lista com quantidade de vezes que cada cartão teve 13+ acertos
-    - bons_cartoes (opcional): lista com apenas os cartões com desempenho satisfatório
+    - bons_cartoes (se filtrar_bons=True): lista com apenas os cartões com desempenho satisfatório
     """
     resultados = []
     faixa_acertos = Counter()
@@ -32,12 +32,9 @@ def conferir_cartoes(cartoes, ultimos_resultados, filtrar_bons=False, min_acerto
                 desempenho_cartoes[i] += 1
         resultados.append((concurso, acertos_por_cartao))
 
-    # Opcional: retornar apenas os bons cartões
     bons_cartoes = []
     if filtrar_bons:
-        for i, vezes_13_ou_mais in enumerate(desempenho_cartoes):
-            if vezes_13_ou_mais >= min_acertos_13_ou_mais:
-                bons_cartoes.append(cartoes[i])
+        bons_cartoes = [cartoes[i] for i, vezes in enumerate(desempenho_cartoes) if vezes >= min_acertos_13_ou_mais]
 
     if filtrar_bons:
         return resultados, faixa_acertos, desempenho_cartoes, bons_cartoes
