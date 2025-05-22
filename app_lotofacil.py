@@ -38,7 +38,7 @@ st.markdown("<h1 style='text-align: center;'>🍀 LotoFácil Inteligente</h1>", 
 st.markdown("<p style='text-align: center;'>Gere cartões com base em estatísticas reais e personalização</p>", unsafe_allow_html=True)
 
 st.markdown("### 🎯 Geração de Cartões")
-qtd_cartoes = st.slider("Quantos cartões deseja gerar?", 1, 100, 1)
+qtd_cartoes = st.slider("Quantos cartões deseja gerar?", 1, 250, 1)
 fixas = st.multiselect("Escolha até 7 dezenas fixas:", list(range(1, 26)))
 excluir = st.multiselect("Deseja excluir até 5 dezenas?", [i for i in range(1, 26) if i not in fixas])
 modo_inteligente = st.checkbox("Usar geração inteligente com base nas estatísticas")
