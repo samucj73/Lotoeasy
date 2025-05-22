@@ -1,3 +1,4 @@
+
 import random
 from collections import Counter
 
@@ -33,7 +34,6 @@ def max_sequencia(cartao):
     return max_seq
 
 def contar_quadrantes(cartao):
-    # Divide o volante 5x5 em 4 quadrantes:
     quadrantes = {
         1: set(range(1, 6)) | set(range(6, 11)),       # Quadrante 1 (1-10)
         2: set(range(11, 16)) | set(range(16, 21)),    # Quadrante 2 (11-20)
@@ -66,6 +66,13 @@ def gerar_cartoes_personalizados(qtd, fixas=None, excluir=None, mais_frequentes=
     excluir = excluir or []
     mais_frequentes = set(mais_frequentes or [])
     atrasadas = set(atrasadas or [])
+
+    dezenas_disponiveis = [d for d in DEZENAS_POSSIVEIS if d not in fixas and d not in excluir]
+    if len(fixas) > 15:
+        raise ValueError("Não é possível fixar mais de 15 dezenas.")
+    if len(fixas) + len(dezenas_disponiveis) < 15:
+        raise ValueError("Número insuficiente de dezenas disponíveis para gerar os cartões.")
+
     cartoes = set()
     tentativas = 0
 
@@ -73,10 +80,8 @@ def gerar_cartoes_personalizados(qtd, fixas=None, excluir=None, mais_frequentes=
         tentativas += 1
         cartao = set(fixas)
 
-        # Base com pesos
-        base_dezenas = [d for d in DEZENAS_POSSIVEIS if d not in fixas and d not in excluir]
         base_ponderada = []
-        for d in base_dezenas:
+        for d in dezenas_disponiveis:
             peso = 1
             if d in mais_frequentes:
                 peso += 4
@@ -87,6 +92,9 @@ def gerar_cartoes_personalizados(qtd, fixas=None, excluir=None, mais_frequentes=
         random.shuffle(base_ponderada)
         while len(cartao) < 15 and base_ponderada:
             cartao.add(base_ponderada.pop())
+
+        if len(cartao) < 15:
+            continue
 
         cartao = sorted(cartao)
         if cartao_valido(cartao):
