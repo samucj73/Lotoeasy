@@ -61,7 +61,7 @@ def cartao_valido(cartao):
         IDEAL_QUADRANTES[0] <= quadrantes <= IDEAL_QUADRANTES[1]
     )
 
-def gerar_cartoes_inteligentes(qtd, fixas=None, excluir=None, mais_frequentes=None, atrasadas=None):
+def gerar_cartoes_personalizados(qtd, fixas=None, excluir=None, mais_frequentes=None, atrasadas=None):
     fixas = fixas or []
     excluir = excluir or []
     mais_frequentes = set(mais_frequentes or [])
