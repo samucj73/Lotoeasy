@@ -56,7 +56,7 @@ elif st.button("🔁 Gerar Cartões"):
         cartoes = gerar_cartoes_inteligentes(qtd_cartoes, fixas, excluir, mais_frequentes, atrasadas)
     else:
         ult_dezenas = [l for _, _, l in ultimos]
-        cartoes = gerar_cartoes_personalizados(fixas or [], excluir or [], qtd_cartoes)
+        cartoes = gerar_cartoes_personalizados(list(fixas or []), list(excluir or []), qtd_cartoes)
     for i, cartao in enumerate(cartoes, 1):
         st.success(f"Cartão {i}: {' - '.join(f'{n:02}' for n in sorted(cartao))}")
     st.session_state['cartoes'] = cartoes
