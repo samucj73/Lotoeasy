@@ -1,18 +1,95 @@
 import random
-from lotofacil_estatisticas import ultimos_resultados
+from collections import Counter
 
-def gerar_cartoes_personalizados(fixas, excluir, quantidade):
-    ultimos = [n for _, dezenas in ultimos_resultados() for n in dezenas]
-    base = list(set(ultimos))
-    base = [d for d in base if d not in fixas and d not in excluir]
-    cartoes = []
+# Dezenas relevantes
+PRIMOS = {2, 3, 5, 7, 11, 13, 17, 19, 23}
+DEZENAS_POSSIVEIS = list(range(1, 26))
 
-    for _ in range(quantidade):
-        complemento = random.sample(base, 15 - len(fixas))
-        cartao = sorted(set(fixas + complemento))
-        while len(cartao) < 15:
-            novo = random.choice([n for n in range(1, 26) if n not in cartao and n not in excluir])
-            cartao.append(novo)
-        cartoes.append(sorted(cartao))
+# Parâmetros considerados ideais com base em estatísticas
+IDEAL_PARES = (6, 9)
+IDEAL_SOMA = (170, 210)
+IDEAL_PRIMOS = (4, 6)
+IDEAL_SEQUENCIA_MAX = 3
+IDEAL_QUADRANTES = (3, 4)
 
-    return cartoes
+def contar_pares(cartao):
+    return sum(1 for d in cartao if d % 2 == 0)
+
+def contar_primos(cartao):
+    return sum(1 for d in cartao if d in PRIMOS)
+
+def calcular_soma(cartao):
+    return sum(cartao)
+
+def max_sequencia(cartao):
+    seq = 1
+    max_seq = 1
+    for i in range(1, len(cartao)):
+        if cartao[i] == cartao[i-1] + 1:
+            seq += 1
+            max_seq = max(max_seq, seq)
+        else:
+            seq = 1
+    return max_seq
+
+def contar_quadrantes(cartao):
+    # Divide o volante 5x5 em 4 quadrantes:
+    quadrantes = {
+        1: set(range(1, 6)) | set(range(6, 11)),       # Quadrante 1 (1-10)
+        2: set(range(11, 16)) | set(range(16, 21)),    # Quadrante 2 (11-20)
+        3: set(range(21, 26))                         # Quadrante 3 (21-25)
+    }
+    usados = set()
+    for d in cartao:
+        for q, dezenas in quadrantes.items():
+            if d in dezenas:
+                usados.add(q)
+    return len(usados)
+
+def cartao_valido(cartao):
+    pares = contar_pares(cartao)
+    primos = contar_primos(cartao)
+    soma = calcular_soma(cartao)
+    seq = max_sequencia(cartao)
+    quadrantes = contar_quadrantes(cartao)
+
+    return (
+        IDEAL_PARES[0] <= pares <= IDEAL_PARES[1] and
+        IDEAL_PRIMOS[0] <= primos <= IDEAL_PRIMOS[1] and
+        IDEAL_SOMA[0] <= soma <= IDEAL_SOMA[1] and
+        seq <= IDEAL_SEQUENCIA_MAX and
+        IDEAL_QUADRANTES[0] <= quadrantes <= IDEAL_QUADRANTES[1]
+    )
+
+def gerar_cartoes_inteligentes(qtd, fixas=None, excluir=None, mais_frequentes=None, atrasadas=None):
+    fixas = fixas or []
+    excluir = excluir or []
+    mais_frequentes = set(mais_frequentes or [])
+    atrasadas = set(atrasadas or [])
+    cartoes = set()
+    tentativas = 0
+
+    while len(cartoes) < qtd and tentativas < qtd * 1000:
+        tentativas += 1
+        cartao = set(fixas)
+
+        # Base com pesos
+        base_dezenas = [d for d in DEZENAS_POSSIVEIS if d not in fixas and d not in excluir]
+        base_ponderada = []
+        for d in base_dezenas:
+            peso = 1
+            if d in mais_frequentes:
+                peso += 4
+            if d in atrasadas:
+                peso -= 1
+            base_ponderada.extend([d] * max(peso, 1))
+
+        random.shuffle(base_ponderada)
+        while len(cartao) < 15 and base_ponderada:
+            cartao.add(base_ponderada.pop())
+
+        cartao = sorted(cartao)
+        if cartao_valido(cartao):
+            cartoes.add(tuple(cartao))
+
+    return [list(c) for c in cartoes]
